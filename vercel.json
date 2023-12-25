@@ -11,6 +11,9 @@
         "src": "/(.*)",
         "dest": "/app.js"
       }
-    ]
+    ],
+    "env": {
+      "NODE_OPTIONS": "--openssl-legacy-provider"
+    }
   }
   
