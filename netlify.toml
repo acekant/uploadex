@@ -1,0 +1,9 @@
+[build]
+  command = "npm install && npm run build"  
+  functions = "functions"
+
+[build.environment]
+  NODE_VERSION = "20.9.0"  
+
+[dev]
+  command = "npm run start" 
