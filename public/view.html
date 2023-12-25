@@ -1,0 +1,136 @@
+<!-- view.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Uploaded Files</title>
+  <!-- Add Bootstrap stylesheet -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Add Bootstrap icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #dde0e469;
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    ol {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+
+    }
+    .file-item  {
+      font-size: 22px;
+      min-width: 300px;
+      max-width: 320px;
+      height: 2rem;
+      overflow: hidden;
+    }
+
+    .fil
+
+    .fas {
+      position: relative;
+      right: 50px;
+    }
+
+    .file-name {
+      overflow: hidden;
+    }
+
+    .file-item {
+      flex: 0 0 calc(33.33% - 1rem);
+      margin: 1%;
+      padding: 0 10px 0 10px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .download-icon {
+      font-size: 20px;
+      color: #007bff;
+      cursor: pointer;
+    }
+
+    .lo {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="my-4">View Uploaded Files</h2>
+    <a class="lo" href="/logout">Logout</a>
+    <ol type="1" id="fileList" class="file-list"></ol>
+  </div>
+
+  <script>
+    // Function to fetch the list of files in the "files" folder
+    async function fetchFileList() {
+      try {
+        const response = await fetch('/filelist');
+        const data = await response.json();
+
+        if (data.success) {
+          displayFileList(data.files);
+        } else {
+          console.error('Failed to fetch file list.');
+        }
+      } catch (error) {
+        console.error('Error fetching file list:', error.message);
+      }
+    }
+
+    // Function to display the list of files
+    function displayFileList(files) {
+      const fileList = document.getElementById('fileList');
+
+      if (files.length === 0) {
+        fileList.innerHTML = '<p>No files available.</p>';
+      } else {
+        fileList.innerHTML = '';
+
+        files.forEach(file => {
+          const fileItem = document.createElement('li');
+          fileItem.className = 'file-item';
+
+          const fileName = document.createElement('div');
+          fileName.className = 'file-name';
+          fileName.textContent = file;
+
+          const downloadIcon = document.createElement('i');
+          downloadIcon.className = 'fas fa-download download-icon';
+          downloadIcon.addEventListener('click', () => downloadFile(file));
+
+          fileItem.appendChild(fileName);
+          fileItem.appendChild(downloadIcon);
+
+          fileList.appendChild(fileItem);
+        });
+      }
+    }
+
+    // Function to initiate file download
+    function downloadFile(filename) {
+      // Create a link element and simulate a click to trigger the download
+      const link = document.createElement('a');
+      link.href = `/download/${filename}`;
+      link.download = filename;
+      link.click();
+    }
+    fetchFileList();
+  </script>
+</body>
+</html>

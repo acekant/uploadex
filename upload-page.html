@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload Page</title>
+  <style>
+    .file-upload {
+      margin-bottom: 10px;
+    }
+    .file-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 10px;
+      
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .filename {
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    .progress-bar {
+      height: 20px;
+      background-color: #f1f1f1;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+    .progress {
+      height: 100%;
+      background-color: #4caf50;
+      width: 0;
+      text-align: center;
+      line-height: 20px;
+      color: white;
+    }
+    .success-message {
+      color: #4caf50;
+      margin-top: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+    .lo {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+    }
+    .view {
+      position: absolute;
+      top: 2rem;
+      right: 7.25rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>File Upload Page</h2>
+  <a class="lo" href="/logout">Logout</a>
+  <a class="view" href="./view">View Your files</a>
+  <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+    <div class="file-upload">
+      <input type="file" name="files" id="fileInput" multiple required>
+    </div>
+    <ul id="fileList" class="file-list"></ul>
+    <div class="progress-bar hidden">
+      <div id="progress" class="progress"></div>
+    </div>
+    <button type="button" onclick="uploadFiles()">Upload All Files</button>
+    <div id="successMessage" class="success-message hidden">
+      All files uploaded successfully!
+    </div>
+  </form>
+
+  <script>
+
+    let isUploading = false;
+
+    function uploadFiles() {
+      if (isUploading) {
+        alert('Files are being uploaded. Please wait.');
+        return;
+      }
+
+      const fileInput = document.getElementById('fileInput');
+      const fileList = document.getElementById('fileList');
+      const progressContainer = document.querySelector('.progress-bar');
+      const progress = document.getElementById('progress');
+      const successMessage = document.getElementById('successMessage');
+
+      const files = fileInput.files;
+
+      if (files.length === 0) {
+        alert('Please select at least one file.');
+        return;
+      }
+
+      isUploading = true;
+
+      // Disable the file input during upload
+      fileInput.disabled = true;
+
+      // Clear existing file list and progress bar
+      fileList.innerHTML = '';
+
+      for (let i = 0; i < files.length; i++) {
+        const fileItem = document.createElement('li');
+        fileItem.className = 'file-item';
+
+        const filenameDiv = document.createElement('div');
+        filenameDiv.className = 'filename';
+        filenameDiv.innerText = files[i].name;
+
+        fileItem.appendChild(filenameDiv);
+        fileList.appendChild(fileItem);
+      }
+
+      const formData = new FormData();
+
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload', true);
+
+      xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable) {
+          const totalLoaded = e.loaded;
+          const totalSize = e.total;
+
+          const totalPercentage = Math.round((totalLoaded / totalSize) * 100);
+          progress.style.width = totalPercentage + '%';
+          progress.innerText = totalPercentage + '%';
+        }
+      };
+
+      xhr.onload = function () {
+        isUploading = false;
+
+        // Re-enable the file input after upload is complete
+        fileInput.disabled = false;
+
+        if (xhr.status === 200) {
+          console.log('All files uploaded successfully!');
+          // Optionally, handle success or redirect
+          progressContainer.classList.add('hidden');
+          successMessage.classList.remove('hidden');
+
+          // Reset the file input after a brief delay
+          setTimeout(() => {
+            fileInput.value = '';
+            successMessage.classList.add('hidden');
+            progress.style.width = '0%'; // Reset the progress bar
+          }, 2000);
+
+          // Remove file names after a brief delay (1 second)
+          setTimeout(() => {
+            fileList.innerHTML = '';
+          }, 1000);
+        } else {
+          console.error('File upload failed.');
+          // Optionally, handle error
+        }
+      };
+
+      xhr.onerror = function () {
+        isUploading = false;
+
+        // Re-enable the file input after upload failure
+        fileInput.disabled = false;
+
+        console.error('File upload failed.');
+        // Optionally, handle error
+      };
+
+      // Show the progress bar
+      progressContainer.classList.remove('hidden');
+      successMessage.classList.add('hidden');
+
+      xhr.send(formData);
+    }
+  </script>
+</body>
+</html>
