@@ -9,6 +9,18 @@
   force = true
 
 [[redirects]]
+  from = "/upload"
+  to = "/upload-page.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/view"
+  to = "/view.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
